@@ -1,4 +1,4 @@
-package com.gestion.eventos.api.security;
+package com.gestion.eventos.api.security.config;
 
 import com.gestion.eventos.api.security.jwt.JwtAuthEntryPoint;
 import com.gestion.eventos.api.security.jwt.JwtAuthenticationFiilter;
@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,9 +44,10 @@ public class SecurityConfig {
                         auth ->
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/eventos/**").permitAll()
+                                .requestMatchers("/h2-console/**").permitAll()
                                 .anyRequest().authenticated()
-                );
+                )
+                        .headers(AbstractHttpConfigurer::disable);
                 http.addFilterBefore(jwtAuthenticationFiilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();

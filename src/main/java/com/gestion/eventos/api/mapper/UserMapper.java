@@ -2,10 +2,12 @@ package com.gestion.eventos.api.mapper;
 
 import com.gestion.eventos.api.domain.Role;
 import com.gestion.eventos.api.domain.User;
-import com.gestion.eventos.api.dto.RegisterDto;
+import com.gestion.eventos.api.exception.ResourceNotFoundException;
+import com.gestion.eventos.api.security.dto.RegisterDto;
 import com.gestion.eventos.api.repository.IRoleRepository;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collections;
@@ -20,19 +22,21 @@ public abstract class UserMapper {
 
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "roles", source = "registerDto.roles", qualifiedByName = "mapRoleStringToRoles")
     public abstract User registerDtoToUser(RegisterDto registerDto);
 
+    @Named("mapRoleStringToRoles")
     public Set<Role> mapRoleStringToRoles(Set<String> roleNames){
         if (roleNames == null || roleNames.isEmpty()){
-            return roleRepository.findByName("R OLE_USER")
+            return roleRepository.findByName("ROLE_USER")
                     .map(Collections::singleton)
-                    .orElseThrow(() -> new RuntimeException("Default role not found in the database."));
+                    .orElseThrow(() -> new ResourceNotFoundException("Default role not found in the database."));
         }
         return roleNames.stream()
                 .map(
                         roleName -> roleRepository.findByName(roleName)
                                 .orElseThrow(
-                                        () -> new RuntimeException("Role not found: " + roleName)
+                                        () -> new ResourceNotFoundException("Role not found: " + roleName)
                                 )
                 ).collect(Collectors.toSet());
     }
