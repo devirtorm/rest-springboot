@@ -1,9 +1,13 @@
 package com.gestion.eventos.api.data;
 
+import com.gestion.eventos.api.domain.Category;
 import com.gestion.eventos.api.domain.Role;
+import com.gestion.eventos.api.domain.Speaker;
 import com.gestion.eventos.api.domain.User;
+import com.gestion.eventos.api.repository.CategoryRepository;
 import com.gestion.eventos.api.repository.IRoleRepository;
 import com.gestion.eventos.api.repository.IUserRepository;
+import com.gestion.eventos.api.repository.SpeakerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,6 +24,8 @@ public class DataLoader implements CommandLineRunner {
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CategoryRepository categoryRepository;
+    private final SpeakerRepository speakerRepository;
 
     @Override
     @Transactional
@@ -64,6 +70,35 @@ public class DataLoader implements CommandLineRunner {
             userRepository.save(regularUser);
             System.out.println("Regular user created: user");
         }
+
+        // --- 4. Create and Save Categories if they do not exist ---
+        if (!categoryRepository.existsByName("Conference")) {
+            Category conference = new Category(null, "Conference", "Large-scale events with multiple speakers.");
+            categoryRepository.save(conference);
+        }
+
+        if (!categoryRepository.existsByName("Workshop")) {
+            Category workshop = new Category(null, "Workshop", "Interactive and practical events.");
+            categoryRepository.save(workshop);
+        }
+
+        if (!categoryRepository.existsByName("Webinar")) {
+            Category webinar = new Category(null, "Webinar", "Live online seminars.");
+            categoryRepository.save(webinar);
+        }
+
+        // --- 5. Create and Save Speakers if they do not exist ---
+        if (!speakerRepository.existsByEmail("john.doe@example.com")) {
+            Speaker john = new Speaker(null, "John Doe", "john.doe@example.com", "Software development expert", new HashSet<>());
+            speakerRepository.save(john);
+        }
+
+        if (!speakerRepository.existsByEmail("jane.smith@example.com")) {
+            Speaker jane = new Speaker(null, "Jane Smith", "jane.smith@example.com", "Marketing specialist.", new HashSet<>());
+            speakerRepository.save(jane);
+        }
+
+
 
     }
 }

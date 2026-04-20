@@ -8,6 +8,9 @@ import com.gestion.eventos.api.service.IEventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,17 +27,18 @@ public class EventController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
-        List<Event> events = eventService.findAll();
-        List<EventResponseDto> responseDtos = eventManager.toEventResponseDtoList(events);
-        return ResponseEntity.ok(responseDtos);
+    public ResponseEntity<Page<EventResponseDto>> getAllEvents(
+            @RequestParam(required = false) String name,
+            @PageableDefault(page = 0, size = 10, sort = "name")Pageable pageable
+            ) {
+        Page<EventResponseDto> events = eventService.findAll(name, pageable);
+        return ResponseEntity.ok(events);
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<EventResponseDto> createEvent(@Valid @RequestBody EventRequestDto requestDto){
-        Event eventToSave = eventManager.toEntity(requestDto);
-        Event eventSaved = eventService.save(eventToSave);
+        Event eventSaved = eventService.save(requestDto);
         EventResponseDto responseDto = eventManager.toResponseDto(eventSaved);
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -55,7 +59,7 @@ public class EventController {
                                                         @Valid @RequestBody EventRequestDto requestDto) {
         Event eventToUpdate = eventService.findById(id);
         eventManager.updateEventFromDto(requestDto, eventToUpdate);
-        Event updatedEvent = eventService.save(eventToUpdate);
+        Event updatedEvent = eventService.update(id,requestDto);
         return ResponseEntity.ok(eventManager.toResponseDto(updatedEvent));
     }
 
