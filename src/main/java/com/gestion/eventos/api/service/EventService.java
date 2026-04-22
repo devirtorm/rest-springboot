@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -110,5 +111,19 @@ public class EventService implements IEventService {
     public void deleteById(Long id) {
         Event evenToDelete = findById(id);
         eventRepository.delete(evenToDelete);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Event> getAllEventsAndTheirDetailsProblematic(){
+        List<Event> events = eventRepository.findAll();
+
+        events.forEach( event -> {
+
+            event.getSpeakers().size();
+            event.getSpeakers().stream().map(Speaker::getName).collect(Collectors.toSet());
+            event.getCategory().getName();
+            event.getAttendedUsers().size();
+        } );
+        return events;
     }
 }

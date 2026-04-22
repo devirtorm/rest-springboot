@@ -25,6 +25,12 @@ public class EventController {
     private final IEventService eventService;
     private final IEventMapper eventManager;
 
+    @GetMapping("/problematic")
+    public ResponseEntity<List<Event>> getAllEventsWithProblems(){
+        List<Event> events = eventService.getAllEventsAndTheirDetailsProblematic();
+        return ResponseEntity.ok(events);
+    }
+
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<Page<EventResponseDto>> getAllEvents(
