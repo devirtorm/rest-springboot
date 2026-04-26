@@ -1,7 +1,7 @@
 package com.gestion.eventos.api.security.config;
 
 import com.gestion.eventos.api.security.jwt.JwtAuthEntryPoint;
-import com.gestion.eventos.api.security.jwt.JwtAuthenticationFiilter;
+import com.gestion.eventos.api.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
-    private final JwtAuthenticationFiilter jwtAuthenticationFiilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
     @Bean
@@ -51,11 +51,15 @@ public class SecurityConfig {
                         auth ->
                         auth
                                 .requestMatchers("/api/v1/auth/**").permitAll()
-                                .requestMatchers("/h2-console/**").permitAll()
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
+                                .requestMatchers("/v3/api-docs.yaml").permitAll()
+
+//                                .requestMatchers("/h2-console/**").permitAll()
                                 .anyRequest().authenticated()
-                )
-                        .headers(AbstractHttpConfigurer::disable);
-                http.addFilterBefore(jwtAuthenticationFiilter, UsernamePasswordAuthenticationFilter.class);
+                );
+//                        .headers(AbstractHttpConfigurer::disable);
+                http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
     }

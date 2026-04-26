@@ -5,6 +5,7 @@ import com.gestion.eventos.api.dto.EventRequestDto;
 import com.gestion.eventos.api.dto.EventResponseDto;
 import com.gestion.eventos.api.mapper.IEventMapper;
 import com.gestion.eventos.api.service.IEventService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
@@ -21,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/events")
 @RequiredArgsConstructor
+@Tag(name = "Eventos", description = "Operations related to event management")
 public class EventController {
     private final IEventService eventService;
     private final IEventMapper eventManager;
