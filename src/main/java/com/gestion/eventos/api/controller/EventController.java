@@ -5,6 +5,9 @@ import com.gestion.eventos.api.dto.EventRequestDto;
 import com.gestion.eventos.api.dto.EventResponseDto;
 import com.gestion.eventos.api.mapper.IEventMapper;
 import com.gestion.eventos.api.service.IEventService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +72,13 @@ public class EventController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @Operation(summary = "Get event by ID", description = "Retrieve a specific event by its ID")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Event found and returned successfully"),
+                    @ApiResponse(responseCode = "404", description = "Event not found with the provided ID")
+            }
+    )
     public ResponseEntity<EventResponseDto> getEventById(@PathVariable Long id){
         Event event = eventService.findById(id);
         EventResponseDto responseDto = eventManager.toResponseDto(event);
