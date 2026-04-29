@@ -5,6 +5,8 @@ import com.gestion.eventos.api.security.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -32,6 +34,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
+    private final Environment environment;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -48,17 +51,21 @@ public class SecurityConfig {
                 .sessionManagement(session->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
-                        auth ->
-                        auth
-                                .requestMatchers("/api/v1/auth/**").permitAll()
-                                .requestMatchers("/swagger-ui/**").permitAll()
-                                .requestMatchers("/v3/api-docs/**").permitAll()
-                                .requestMatchers("/v3/api-docs.yaml").permitAll()
-
-//                                .requestMatchers("/h2-console/**").permitAll()
-                                .anyRequest().authenticated()
-                );
-//                        .headers(AbstractHttpConfigurer::disable);
+                        auth -> {
+                            auth.requestMatchers("/api/v1/auth/**").permitAll();
+                            if (environment.acceptsProfiles(Profiles.of("dev"))){
+                                auth.requestMatchers("/swagger-ui/**").permitAll()
+                                        .requestMatchers("/v3/api-docs/**").permitAll()
+                                        .requestMatchers("/v3/api-docs.yaml").permitAll();
+                                auth.requestMatchers(
+                                        "/swagger-ui/**", "/swagger-ui.html",
+                                        "/v3/api-docs/**","/v3/api-docs.yaml",
+                                        "/swagger-resources/**",
+                                        "/webjars/**"
+                                );
+                            }
+                            auth.anyRequest().authenticated();
+                        });
                 http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
