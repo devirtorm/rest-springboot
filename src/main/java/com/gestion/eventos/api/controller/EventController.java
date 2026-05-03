@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -28,6 +30,7 @@ import java.util.List;
 @Tag(name = "Eventos", description = "Operations related to event management")
 public class EventController {
     private final IEventService eventService;
+    private static final Logger logger = LoggerFactory.getLogger(EventController.class);
     private final IEventMapper eventManager;
 
     @GetMapping("/problematic")
@@ -64,8 +67,10 @@ public class EventController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<EventResponseDto> createEvent(@Valid @RequestBody EventRequestDto requestDto){
+        logger.info("request to create event received: {}", requestDto.getName());
         Event eventSaved = eventService.save(requestDto);
         EventResponseDto responseDto = eventManager.toResponseDto(eventSaved);
+        logger.debug("Event has been created successfully.. {}", requestDto.getName());
 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
